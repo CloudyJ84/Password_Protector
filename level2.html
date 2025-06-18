@@ -30,6 +30,7 @@
             border-bottom: 2px dashed transparent; /* Dashed border for interactivity */
             transition: border-color 0.2s ease-in-out;
             padding-bottom: 2px;
+            display: inline-block; /* Ensure it wraps text naturally */
         }
         .suspicious-element:hover {
             border-color: #9ca3af; /* Light gray on hover */
@@ -42,21 +43,23 @@
             background-color: #fee2e2; /* Light red for incorrect */
             border-color: #ef4444; /* Red border */
         }
+        /* Tooltip styles */
         .tooltip {
             visibility: hidden;
             background-color: #333;
             color: #fff;
             text-align: center;
             border-radius: 6px;
-            padding: 5px 0;
+            padding: 5px;
             position: absolute;
             z-index: 1;
             bottom: 125%; /* Position above the element */
             left: 50%;
-            margin-left: -60px;
+            transform: translateX(-50%);
             opacity: 0;
-            transition: opacity 0.3s;
-            width: 120px;
+            transition: opacity 0.3s, visibility 0.3s;
+            width: max-content; /* Adjust width to content */
+            white-space: nowrap; /* Prevent text wrapping */
         }
         .suspicious-element:hover .tooltip {
             visibility: visible;
@@ -72,6 +75,13 @@
             border-style: solid;
             border-color: #333 transparent transparent transparent;
         }
+        .clicked-explanation {
+            display: block;
+            font-size: 0.85rem;
+            color: #1e40af; /* Darker blue for explanation */
+            margin-top: 0.25rem;
+            font-weight: normal;
+        }
     </style>
 </head>
 <body class="selection:bg-blue-200">
@@ -83,27 +93,8 @@
             A cyber villain has sent you a tricky email! Your mission is to identify all the suspicious elements to avoid falling for the phishing scam. Click on what you think is suspicious!
         </p>
 
-        <div class="email-container max-w-md mx-auto mb-8 text-left">
-            <div class="email-header p-4 flex items-center justify-between">
-                <div>
-                    <span class="font-semibold">From:</span>
-                    <span id="senderEmail" class="suspicious-element relative text-sm text-red-500 hover:text-red-700">support@amzon.com <span class="tooltip">Misspelling!</span></span>
-                </div>
-                <div class="text-sm text-gray-500">Today, 10:30 AM</div>
-            </div>
-            <div class="email-body p-6">
-                <p class="text-gray-800 font-bold text-lg mb-4">Urgent Account Review Needed!</p>
-                <p class="mb-4">Dear Valued Customer,</p>
-                <p class="mb-4">We noticed some unusual activity on your account. To prevent <span id="urgentTone" class="suspicious-element relative text-red-500 hover:text-red-700">unauthorized access, your account has been temporarily locked</span>. Please verify your details immediately to restore full access.</p>
-                <p class="mb-6">
-                    Click here to <span id="suspiciousLink" class="suspicious-element relative text-blue-600 hover:underline">log in and update your information</span>.
-                    <span class="tooltip">Hover to see the real link!</span>
-                    <a href="#" class="hidden" data-real-link="http://bad-hacker-site.com/login" target="_blank" rel="noopener noreferrer"></a>
-                </p>
-                <p class="text-sm text-gray-500">Thank you,<br>The Service Team</p>
-                <p id="grammar" class="suspicious-element relative text-red-500 text-sm mt-4 hover:text-red-700">P.S. We needs you to acts quick!</p>
-                <span class="tooltip">Bad grammar!</span>
-            </div>
+        <div class="email-container max-w-md mx-auto mb-8 text-left" id="emailContent">
+            <!-- Email content will be loaded here dynamically -->
         </div>
 
         <div id="feedbackMessage" class="text-lg font-bold text-gray-700 mb-6">Click on suspicious parts of the email!</div>
@@ -115,6 +106,13 @@
             >
                 <i class="fas fa-arrow-left mr-2"></i> Back to Challenges
             </a>
+            <button
+                id="resetLevelButton"
+                class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-xl hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300 ease-in-out transform hover:scale-105"
+                aria-label="Reset Level"
+            >
+                <i class="fas fa-redo mr-2"></i> Reset This Level
+            </button>
             <a href="level3.html"
                 id="nextLevelButton"
                 class="inline-block bg-orange-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-orange-300 transition duration-300 ease-in-out transform hover:scale-105 hidden"
@@ -126,31 +124,177 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                const suspiciousElements = {
-                    senderEmail: document.getElementById('senderEmail'),
-                    urgentTone: document.getElementById('urgentTone'),
-                    suspiciousLink: document.getElementById('suspiciousLink'),
-                    grammar: document.getElementById('grammar')
-                };
+                const emailContentDiv = document.getElementById('emailContent');
                 const feedbackMessage = document.getElementById('feedbackMessage');
                 const nextLevelButton = document.getElementById('nextLevelButton');
+                const resetLevelButton = document.getElementById('resetLevelButton'); // New reset button
 
+                let currentScenario = {};
+                let clickedElements = new Set();
                 let correctPicks = 0;
-                const totalCorrect = Object.keys(suspiciousElements).length;
-                let clickedElements = new Set(); // To track elements already clicked
+                let totalCorrect = 0;
 
-                // Store correct explanations for tooltips
-                const explanations = {
-                    senderEmail: "Misspelled domain 'amzon.com' instead of 'amazon.com'. Always check sender emails carefully!",
-                    urgentTone: "Phrases like 'urgent', 'locked account', or 'immediate action required' are common in phishing to create panic.",
-                    suspiciousLink: "Always hover over links to see the true destination URL. If it doesn't match the expected site, it's suspicious!",
-                    grammar: "Phishing emails often contain poor grammar, spelling errors, or awkward phrasing."
-                };
+                // Define multiple phishing scenarios
+                const scenarios = [
+                    {
+                        id: 'scenario1',
+                        emailHtml: `
+                            <div class="email-header p-4 flex items-center justify-between">
+                                <div>
+                                    <span class="font-semibold">From:</span>
+                                    <span id="senderEmail" class="suspicious-element relative text-sm text-red-500 hover:text-red-700" data-explanation="Misspelled domain 'amzon.com' instead of 'amazon.com'. Always check sender emails carefully!">support@amzon.com</span>
+                                </div>
+                                <div class="text-sm text-gray-500">Today, 10:30 AM</div>
+                            </div>
+                            <div class="email-body p-6">
+                                <p class="text-gray-800 font-bold text-lg mb-4">Urgent Account Review Needed!</p>
+                                <p class="mb-4">Dear Valued Customer,</p>
+                                <p class="mb-4">We noticed some unusual activity on your account. To prevent <span id="urgentTone" class="suspicious-element relative text-red-500 hover:text-red-700" data-explanation="Phrases like 'urgent', 'locked account', or 'immediate action required' are common in phishing to create panic.">unauthorized access, your account has been temporarily locked</span>. Please verify your details immediately to restore full access.</p>
+                                <p class="mb-6">
+                                    Click here to <span id="suspiciousLink" class="suspicious-element relative text-blue-600 hover:underline" data-real-link="http://bad-hacker-site.com/login" data-explanation="Always hover over links to see the true destination URL. If it doesn't match the expected site, it's suspicious!">log in and update your information</span>.
+                                </p>
+                                <p class="text-sm text-gray-500">Thank you,<br>The Service Team</p>
+                                <p id="grammar" class="suspicious-element relative text-red-500 text-sm mt-4 hover:text-red-700" data-explanation="Phishing emails often contain poor grammar, spelling errors, or awkward phrasing.">P.S. We needs you to acts quick!</p>
+                            </div>
+                        `,
+                        suspiciousIds: ['senderEmail', 'urgentTone', 'suspiciousLink', 'grammar']
+                    },
+                    {
+                        id: 'scenario2',
+                        emailHtml: `
+                            <div class="email-header p-4 flex items-center justify-between">
+                                <div>
+                                    <span class="font-semibold">From:</span>
+                                    <span id="senderEmail2" class="suspicious-element relative text-sm text-red-500 hover:text-red-700" data-explanation="Generic greeting like 'Dear Customer' is often a red flag, as legitimate companies usually address you by name.">noreply@paypall.info</span>
+                                </div>
+                                <div class="text-sm text-gray-500">Yesterday, 03:15 PM</div>
+                            </div>
+                            <div class="email-body p-6">
+                                <p class="text-gray-800 font-bold text-lg mb-4">Security Alert: Unusual Login Attempt</p>
+                                <p class="mb-4">Dear User,</p>
+                                <p class="mb-4">We've detected a suspicious login from an unrecognized device. To secure your account, please <span id="passwordRequest" class="suspicious-element relative text-red-500 hover:text-red-700" data-explanation="Legitimate services will *never* ask for your password directly in an email.">confirm your password and security questions immediately</span>.</p>
+                                <p class="mb-6">
+                                    Verify your account by clicking here: <span id="suspiciousLink2" class="suspicious-element relative text-blue-600 hover:underline" data-real-link="http://verify-my-account.ru/login" data-explanation="The link's domain 'verify-my-account.ru' is clearly not PayPal's official domain.">https://www.paypall.com/secure_login</span>.
+                                </p>
+                                <p class="text-sm text-gray-500">Thank you for your cooperation,<br>PayPal Security Team</p>
+                                <p id="genericGreeting" class="suspicious-element relative text-red-500 text-sm mt-4 hover:text-red-700" data-explanation="Misspelled sender domain ('paypall.info' instead of 'paypal.com').">Important: This is an automated message. Do not reply to this email.</p>
+                            </div>
+                        `,
+                        suspiciousIds: ['senderEmail2', 'passwordRequest', 'suspiciousLink2', 'genericGreeting']
+                    }
+                    // Add more scenarios here if desired
+                ];
 
-                // Function to show/hide tooltip (for suspicious link element specifically)
+                /**
+                 * Loads a random phishing scenario into the UI and sets up event listeners.
+                 */
+                function loadScenario() {
+                    correctPicks = 0;
+                    clickedElements.clear();
+                    nextLevelButton.classList.add('hidden');
+                    feedbackMessage.textContent = "Click on suspicious parts of the email!";
+                    feedbackMessage.classList.remove('text-green-700', 'text-red-500');
+                    feedbackMessage.classList.add('text-gray-700');
+
+                    // Randomly select a scenario
+                    const randomIndex = Math.floor(Math.random() * scenarios.length);
+                    currentScenario = scenarios[randomIndex];
+
+                    emailContentDiv.innerHTML = currentScenario.emailHtml;
+                    totalCorrect = currentScenario.suspiciousIds.length;
+
+                    currentScenario.suspiciousIds.forEach(id => {
+                        const element = document.getElementById(id);
+                        if (!element) {
+                            console.error(`Element with ID ${id} not found for scenario ${currentScenario.id}`);
+                            return;
+                        }
+
+                        // Re-enable pointer events and reset classes for potentially reloaded elements
+                        element.style.pointerEvents = 'auto';
+                        element.classList.remove('correct', 'incorrect');
+                        element.classList.add('text-red-500'); // Ensure initial red text for suspicious
+
+                        // Remove existing explanations from previous runs if any
+                        const existingExplanation = element.querySelector('.clicked-explanation');
+                        if (existingExplanation) {
+                            existingExplanation.remove();
+                        }
+
+                        // Add hover behavior for suspicious links to show actual URL
+                        if (element.dataset.realLink) { // Check if it's a link-like element
+                            element.addEventListener('mouseenter', () => {
+                                if (!clickedElements.has(id)) {
+                                    showTooltip(element, `Actual link: ${element.dataset.realLink}`);
+                                }
+                            });
+                            element.addEventListener('mouseleave', () => {
+                                if (!clickedElements.has(id)) {
+                                    hideTooltip(element);
+                                }
+                            });
+                        }
+
+                        // Add click event listener
+                        element.addEventListener('click', () => {
+                            handleClick(element, id);
+                        });
+                    });
+                }
+
+                /**
+                 * Handles the click event on a suspicious element.
+                 * @param {HTMLElement} element - The clicked element.
+                 * @param {string} id - The ID of the clicked element.
+                 */
+                function handleClick(element, id) {
+                    if (clickedElements.has(id)) {
+                        return; // Already clicked, do nothing
+                    }
+
+                    element.classList.add('correct'); // Mark as correct
+                    element.style.cursor = 'default'; // Change cursor to indicate it's no longer clickable
+                    clickedElements.add(id);
+                    correctPicks++;
+
+                    // Display the full explanation
+                    const explanationText = element.dataset.explanation;
+                    let explanationSpan = element.querySelector('.clicked-explanation');
+                    if (!explanationSpan) {
+                        explanationSpan = document.createElement('span');
+                        explanationSpan.className = 'clicked-explanation'; // Apply specific class
+                        element.appendChild(explanationSpan);
+                    }
+                    explanationSpan.textContent = ` (${explanationText})`;
+                    hideTooltip(element); // Hide any active hover tooltip
+
+                    updateFeedbackMessage();
+                }
+
+                /**
+                 * Updates the feedback message displayed to the user.
+                 */
+                function updateFeedbackMessage() {
+                    if (correctPicks === totalCorrect) {
+                        feedbackMessage.textContent = "Excellent work, Digital Guardian! You've identified all the phishing attempts!";
+                        feedbackMessage.classList.remove('text-gray-700', 'text-red-500');
+                        feedbackMessage.classList.add('text-green-700');
+                        nextLevelButton.classList.remove('hidden'); // Show next level button
+                    } else {
+                        feedbackMessage.textContent = `Great! You've found ${correctPicks} out of ${totalCorrect} suspicious elements. Keep looking!`;
+                        feedbackMessage.classList.remove('text-green-700', 'text-red-500');
+                        feedbackMessage.classList.add('text-gray-700');
+                    }
+                }
+
+                /**
+                 * Shows a tooltip near the element.
+                 * @param {HTMLElement} element - The element to show the tooltip for.
+                 * @param {string} text - The text content of the tooltip.
+                 */
                 function showTooltip(element, text) {
                     let tooltip = element.querySelector('.tooltip');
-                    if (!tooltip) {
+                    if (!tooltip) { // Create tooltip if it doesn't exist
                         tooltip = document.createElement('span');
                         tooltip.className = 'tooltip';
                         element.appendChild(tooltip);
@@ -160,6 +304,10 @@
                     tooltip.style.opacity = '1';
                 }
 
+                /**
+                 * Hides the tooltip for an element.
+                 * @param {HTMLElement} element - The element whose tooltip should be hidden.
+                 */
                 function hideTooltip(element) {
                     const tooltip = element.querySelector('.tooltip');
                     if (tooltip) {
@@ -168,59 +316,11 @@
                     }
                 }
 
+                // Event listener for reset button
+                resetLevelButton.addEventListener('click', loadScenario);
 
-                Object.keys(suspiciousElements).forEach(id => {
-                    const element = suspiciousElements[id];
-                    const originalText = element.innerHTML; // Store original for reset if needed
-
-                    // Add hover for suspicious link to show actual URL
-                    if (id === 'suspiciousLink') {
-                        const realLinkElem = element.querySelector('a');
-                        element.addEventListener('mouseenter', () => {
-                            if (!clickedElements.has(id)) { // Only show on hover if not already clicked
-                                showTooltip(element, `Actual link: ${realLinkElem.dataset.realLink}`);
-                            }
-                        });
-                        element.addEventListener('mouseleave', () => {
-                            if (!clickedElements.has(id)) {
-                                hideTooltip(element);
-                            }
-                        });
-                    }
-
-                    element.addEventListener('click', () => {
-                        if (clickedElements.has(id)) {
-                            return; // Already clicked, do nothing
-                        }
-
-                        element.classList.add('correct'); // Mark as correct
-                        element.style.cursor = 'default'; // Change cursor to indicate it's no longer clickable
-                        clickedElements.add(id);
-                        correctPicks++;
-
-                        // Display the full explanation directly instead of tooltip for clicked elements
-                        const explanationText = explanations[id];
-                        let explanationSpan = element.querySelector('.clicked-explanation');
-                        if (!explanationSpan) {
-                            explanationSpan = document.createElement('span');
-                            explanationSpan.className = 'block text-sm text-blue-700 font-semibold mt-1';
-                            element.appendChild(explanationSpan);
-                        }
-                        explanationSpan.textContent = ` (${explanationText})`;
-                        // Hide the hover tooltip once clicked
-                        hideTooltip(element);
-
-
-                        if (correctPicks === totalCorrect) {
-                            feedbackMessage.textContent = "Excellent work, Digital Guardian! You've identified all the phishing attempts!";
-                            feedbackMessage.classList.remove('text-gray-700');
-                            feedbackMessage.classList.add('text-green-700');
-                            nextLevelButton.classList.remove('hidden'); // Show next level button
-                        } else {
-                            feedbackMessage.textContent = `Great! You've found ${correctPicks} out of ${totalCorrect} suspicious elements. Keep looking!`;
-                        }
-                    });
-                });
+                // Initial load of a scenario when the page loads
+                loadScenario();
             });
         </script>
     </div>

@@ -30,14 +30,23 @@
             font-size: 0.9rem;
             margin-bottom: 1rem;
             color: #4a5568;
+            cursor: pointer; /* Ensure it's always clickable initially */
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
+        .url-bar-example:hover {
+            background-color: #e2e8f0; /* Keep consistent on hover */
         }
         .url-bar-example.secure {
             background-color: #d1fae5;
             color: #10b981;
+            border: 1px solid #10b981;
+            pointer-events: none; /* Disable after selection */
         }
         .url-bar-example.insecure {
             background-color: #fee2e2;
             color: #ef4444;
+            border: 1px solid #ef4444;
+            pointer-events: none; /* Disable after selection */
         }
         .wifi-item {
             display: flex;
@@ -46,7 +55,7 @@
             margin-bottom: 0.5rem;
             border-radius: 0.5rem;
             cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
             justify-content: space-between;
         }
         .wifi-item:hover {
@@ -55,10 +64,12 @@
         .wifi-item.correct {
             background-color: #d1fae5;
             border: 1px solid #10b981;
+            pointer-events: none; /* Disable after selection */
         }
         .wifi-item.incorrect {
             background-color: #fee2e2;
             border: 1px solid #ef4444;
+            pointer-events: none; /* Disable after selection */
         }
         .feedback-icon {
             margin-left: 1rem;
@@ -85,13 +96,13 @@
             </p>
             <p class="mb-4 text-gray-700 font-semibold">Which of these is a secure website address?</p>
 
-            <div id="urlExample1" class="url-bar-example cursor-pointer" data-correct="false">
+            <div id="urlExample1" class="url-bar-example" data-correct="false">
                 <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i> http://insecure-shopping.com
             </div>
-            <div id="urlExample2" class="url-bar-example cursor-pointer" data-correct="true">
+            <div id="urlExample2" class="url-bar-example" data-correct="true">
                 <i class="fas fa-lock mr-2 text-gray-600"></i> https://securebank.com
             </div>
-            <div id="urlExample3" class="url-bar-example cursor-pointer" data-correct="false">
+            <div id="urlExample3" class="url-bar-example" data-correct="false">
                 <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i> http://travel-deals.org
             </div>
             <p id="urlFeedback" class="mt-4 text-sm font-semibold"></p>
@@ -107,14 +118,14 @@
             </p>
             <p class="mb-4 text-gray-700 font-semibold">Which Wi-Fi network is the safest to connect to?</p>
 
-            <div id="wifiOption1" class="wifi-item cursor-pointer" data-correct="false">
+            <div id="wifiOption1" class="wifi-item" data-correct="false">
                 <div class="flex items-center">
                     <i class="fas fa-wifi mr-2 text-gray-500"></i> Free Public Wi-Fi
                 </div>
                 <i class="fas fa-exclamation-triangle text-red-500 feedback-icon hidden"></i>
                 <i class="fas fa-check-circle text-green-500 feedback-icon hidden"></i>
             </div>
-            <div id="wifiOption2" class="wifi-item cursor-pointer" data-correct="true">
+            <div id="wifiOption2" class="wifi-item" data-correct="true">
                 <div class="flex items-center">
                     <i class="fas fa-wifi mr-2 text-gray-500"></i> CoffeeShop_Secure (WPA2)
                     <i class="fas fa-lock text-gray-500 ml-1"></i>
@@ -122,7 +133,7 @@
                 <i class="fas fa-exclamation-triangle text-red-500 feedback-icon hidden"></i>
                 <i class="fas fa-check-circle text-green-500 feedback-icon hidden"></i>
             </div>
-            <div id="wifiOption3" class="wifi-item cursor-pointer" data-correct="false">
+            <div id="wifiOption3" class="wifi-item" data-correct="false">
                 <div class="flex items-center">
                     <i class="fas fa-wifi mr-2 text-gray-500"></i> Airport_Guest
                 </div>
@@ -134,13 +145,22 @@
 
         <div id="completionMessage" class="text-lg font-bold text-gray-700 mb-6 hidden"></div>
 
-        <a href="index.html"
-            id="returnToMainButton"
-            class="inline-block bg-blue-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out transform hover:scale-105 hidden"
-            aria-label="Return to main menu"
-        >
-            <i class="fas fa-home mr-2"></i> Return to Main Menu
-        </a>
+        <div class="flex flex-col md:flex-row gap-4 justify-center">
+            <button
+                id="resetLevelButton"
+                class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-xl hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300 ease-in-out transform hover:scale-105"
+                aria-label="Reset Level"
+            >
+                <i class="fas fa-redo mr-2"></i> Reset This Level
+            </button>
+            <a href="index.html"
+                id="returnToMainButton"
+                class="inline-block bg-blue-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out transform hover:scale-105 hidden"
+                aria-label="Return to main menu"
+            >
+                <i class="fas fa-home mr-2"></i> Return to Main Menu
+            </a>
+        </div>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
@@ -159,17 +179,60 @@
                 const wifiFeedback = document.getElementById('wifiFeedback');
                 const completionMessage = document.getElementById('completionMessage');
                 const returnToMainButton = document.getElementById('returnToMainButton');
+                const resetLevelButton = document.getElementById('resetLevelButton'); // New reset button
 
                 let urlCorrect = false;
                 let wifiCorrect = false;
 
+                /**
+                 * Checks if both URL and Wi-Fi challenges are completed and updates UI accordingly.
+                 */
                 function checkCompletion() {
                     if (urlCorrect && wifiCorrect) {
                         completionMessage.textContent = "Mission Accomplished for Level 3! You're a true Digital Guardian!";
                         completionMessage.classList.remove('text-gray-700', 'hidden');
                         completionMessage.classList.add('text-green-700');
                         returnToMainButton.classList.remove('hidden');
+                        resetLevelButton.classList.add('hidden'); // Hide reset button on completion
+                    } else {
+                        returnToMainButton.classList.add('hidden'); // Ensure hidden if not completed
+                        resetLevelButton.classList.remove('hidden'); // Ensure visible if not completed
                     }
+                }
+
+                /**
+                 * Resets the entire level to its initial state.
+                 */
+                function resetLevel() {
+                    urlCorrect = false;
+                    wifiCorrect = false;
+
+                    // Reset URL examples
+                    urlExamples.forEach(urlDiv => {
+                        urlDiv.classList.remove('secure', 'insecure');
+                        urlDiv.style.pointerEvents = 'auto'; // Re-enable clicking
+                        urlDiv.style.border = ''; // Remove custom border
+                    });
+                    urlFeedback.textContent = "";
+                    urlFeedback.classList.remove('text-green-700', 'text-red-500');
+
+                    // Reset Wi-Fi options
+                    wifiOptions.forEach(wifiDiv => {
+                        wifiDiv.classList.remove('correct', 'incorrect');
+                        wifiDiv.style.pointerEvents = 'auto'; // Re-enable clicking
+                        wifiDiv.style.border = ''; // Remove custom border
+                        const feedbackIconCheck = wifiDiv.querySelector('.fa-check-circle');
+                        const feedbackIconWarning = wifiDiv.querySelector('.fa-exclamation-triangle');
+                        if (feedbackIconCheck) feedbackIconCheck.classList.add('hidden');
+                        if (feedbackIconWarning) feedbackIconWarning.classList.add('hidden');
+                    });
+                    wifiFeedback.textContent = "";
+                    wifiFeedback.classList.remove('text-green-700', 'text-red-500');
+
+                    // Reset completion message and buttons
+                    completionMessage.classList.add('hidden');
+                    returnToMainButton.classList.add('hidden');
+                    resetLevelButton.classList.remove('hidden');
                 }
 
                 urlExamples.forEach(urlDiv => {
@@ -202,19 +265,26 @@
                         const isCorrect = wifiDiv.dataset.correct === 'true';
                         wifiOptions.forEach(div => {
                             div.style.pointerEvents = 'none'; // Disable all after first click
-                            div.querySelector('.feedback-icon').classList.remove('hidden');
+                            // Show the relevant icon (check or warning) for all options after a selection
+                            const iconCheck = div.querySelector('.fa-check-circle');
+                            const iconWarn = div.querySelector('.fa-exclamation-triangle');
+                            if (div.dataset.correct === 'true') {
+                                if (iconCheck) iconCheck.classList.remove('hidden');
+                                if (iconWarn) iconWarn.classList.add('hidden');
+                            } else {
+                                if (iconWarn) iconWarn.classList.remove('hidden');
+                                if (iconCheck) iconCheck.classList.add('hidden');
+                            }
                         });
 
                         if (isCorrect) {
                             wifiDiv.classList.add('correct');
-                            wifiDiv.querySelector('.fa-check-circle').classList.remove('hidden');
                             wifiFeedback.textContent = "Correct! Secured Wi-Fi (like WPA2) requires a password and encrypts your data.";
                             wifiFeedback.classList.remove('text-red-500');
                             wifiFeedback.classList.add('text-green-700');
                             wifiCorrect = true;
                         } else {
                             wifiDiv.classList.add('incorrect');
-                            wifiDiv.querySelector('.fa-exclamation-triangle').classList.remove('hidden');
                             wifiFeedback.textContent = "Incorrect. Avoid open networks for sensitive tasks. Always look for password protection!";
                             wifiFeedback.classList.remove('text-green-700');
                             wifiFeedback.classList.add('text-red-500');
@@ -222,6 +292,12 @@
                         checkCompletion();
                     });
                 });
+
+                // Add event listener for the new reset button
+                resetLevelButton.addEventListener('click', resetLevel);
+
+                // Initial check on load
+                resetLevel(); // Call reset to ensure initial state is correct
             });
         </script>
     </div>
