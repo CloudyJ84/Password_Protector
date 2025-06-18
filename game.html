@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Protector: The Digital Fortress Challenge</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="selection:bg-blue-200">
+    <div id="gameContainer" class="game-container">
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-4 flex items-center justify-center">
+            <i class="fas fa-lock text-blue-500 mr-3"></i> Password Protector
+        </h1>
+        <p class="text-gray-600 mb-8 leading-relaxed">
+            Your mission: Create a *super strong* password to protect your invaluable digital treasure chest.
+            The stronger your password, the safer your data will be from sneaky cyber villains!
+        </p>
+
+        <div class="relative mb-6">
+            <label for="passwordInput" class="block text-left text-sm font-medium text-gray-700 mb-2">Your Secret Password:</label>
+            <input
+                type="password"
+                id="passwordInput"
+                placeholder="Type your password here..."
+                class="block w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-blue-500 focus:ring-blue-500 outline-none text-gray-800 transition duration-200"
+                autocomplete="new-password"
+                aria-label="Password input field"
+            >
+            <div id="passwordStrengthBar" class="password-strength-bar"></div>
+            <p id="strengthText" class="text-right text-sm font-semibold mt-2 text-gray-500" aria-live="polite">Start typing to see strength</p>
+            <p id="timeToCrackText" class="text-right text-sm font-semibold mt-1 text-gray-500" aria-live="polite">Time to crack: Calculating...</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8 text-left text-gray-700">
+            <div id="lengthFeedback" class="feedback-item flex items-center p-2 rounded-lg bg-gray-50">
+                <i class="fas fa-times mr-2"></i> At least 8 characters
+            </div>
+            <div id="upperFeedback" class="feedback-item flex items-center p-2 rounded-lg bg-gray-50">
+                <i class="fas fa-times mr-2"></i> At least one uppercase letter (A-Z)
+            </div>
+            <div id="lowerFeedback" class="feedback-item flex items-center p-2 rounded-lg bg-gray-50">
+                <i class="fas fa-times mr-2"></i> At least one lowercase letter (a-z)
+            </div>
+            <div id="numberFeedback" class="feedback-item flex items-center p-2 rounded-lg bg-gray-50">
+                <i class="fas fa-times mr-2"></i> At least one number (0-9)
+            </div>
+            <div id="symbolFeedback" class="feedback-item flex items-center p-2 rounded-lg bg-gray-50">
+                <i class="fas fa-times mr-2"></i> At least one special character (!@#$...)
+            </div>
+        </div>
+
+        <button
+            id="resetButton"
+            class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out transform hover:scale-105 mb-4"
+            aria-label="Reset password input"
+        >
+            <i class="fas fa-redo-alt mr-2"></i> Reset Password
+        </button>
+
+        <p id="gameMessage" class="mt-6 text-lg font-bold text-gray-700">Let's make that treasure chest impenetrable!</p>
+    </div>
+    <!-- Link to external JavaScript -->
+    <script src="main.js"></script>
+</body>
+</html>
