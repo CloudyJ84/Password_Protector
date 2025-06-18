@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 3: Secure Browsing & Wi-Fi</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .scenario-box {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: #fbfdff;
+        }
+        .url-bar-example {
+            background-color: #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            color: #4a5568;
+        }
+        .url-bar-example.secure {
+            background-color: #d1fae5;
+            color: #10b981;
+        }
+        .url-bar-example.insecure {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+        .wifi-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            justify-content: space-between;
+        }
+        .wifi-item:hover {
+            background-color: #f0f2f5;
+        }
+        .wifi-item.correct {
+            background-color: #d1fae5;
+            border: 1px solid #10b981;
+        }
+        .wifi-item.incorrect {
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+        }
+        .feedback-icon {
+            margin-left: 1rem;
+        }
+    </style>
+</head>
+<body class="selection:bg-blue-200">
+    <div class="game-container">
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-4 flex items-center justify-center">
+            <i class="fas fa-wifi text-orange-500 mr-3"></i> Level 3: Secure Browsing & Wi-Fi
+        </h1>
+        <p class="text-gray-600 mb-8 leading-relaxed">
+            Your final mission: Learn to spot secure connections and safe Wi-Fi networks to keep your data private in public places.
+        </p>
+
+        <!-- Secure Browsing Section -->
+        <div class="scenario-box">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4 flex items-center">
+                <i class="fas fa-lock mr-2 text-green-500"></i> Secure Websites (HTTPS)
+            </h2>
+            <p class="mb-4 text-gray-700">
+                When you visit a website, always look at the address bar. A secure website starts with <span class="font-bold">HTTPS</span> and shows a padlock icon.
+                This means your connection to the site is encrypted.
+            </p>
+            <p class="mb-4 text-gray-700 font-semibold">Which of these is a secure website address?</p>
+
+            <div id="urlExample1" class="url-bar-example cursor-pointer" data-correct="false">
+                <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i> http://insecure-shopping.com
+            </div>
+            <div id="urlExample2" class="url-bar-example cursor-pointer" data-correct="true">
+                <i class="fas fa-lock mr-2 text-gray-600"></i> https://securebank.com
+            </div>
+            <div id="urlExample3" class="url-bar-example cursor-pointer" data-correct="false">
+                <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i> http://travel-deals.org
+            </div>
+            <p id="urlFeedback" class="mt-4 text-sm font-semibold"></p>
+        </div>
+
+        <!-- Secure Wi-Fi Section -->
+        <div class="scenario-box">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4 flex items-center">
+                <i class="fas fa-wifi mr-2 text-blue-500"></i> Safe Wi-Fi Networks
+            </h2>
+            <p class="mb-4 text-gray-700">
+                Public Wi-Fi can be risky. Always prefer networks that require a password. Avoid "Open" or "Free Public Wi-Fi" for sensitive activities like banking or shopping.
+            </p>
+            <p class="mb-4 text-gray-700 font-semibold">Which Wi-Fi network is the safest to connect to?</p>
+
+            <div id="wifiOption1" class="wifi-item cursor-pointer" data-correct="false">
+                <div class="flex items-center">
+                    <i class="fas fa-wifi mr-2 text-gray-500"></i> Free Public Wi-Fi
+                </div>
+                <i class="fas fa-exclamation-triangle text-red-500 feedback-icon hidden"></i>
+                <i class="fas fa-check-circle text-green-500 feedback-icon hidden"></i>
+            </div>
+            <div id="wifiOption2" class="wifi-item cursor-pointer" data-correct="true">
+                <div class="flex items-center">
+                    <i class="fas fa-wifi mr-2 text-gray-500"></i> CoffeeShop_Secure (WPA2)
+                    <i class="fas fa-lock text-gray-500 ml-1"></i>
+                </div>
+                <i class="fas fa-exclamation-triangle text-red-500 feedback-icon hidden"></i>
+                <i class="fas fa-check-circle text-green-500 feedback-icon hidden"></i>
+            </div>
+            <div id="wifiOption3" class="wifi-item cursor-pointer" data-correct="false">
+                <div class="flex items-center">
+                    <i class="fas fa-wifi mr-2 text-gray-500"></i> Airport_Guest
+                </div>
+                <i class="fas fa-exclamation-triangle text-red-500 feedback-icon hidden"></i>
+                <i class="fas fa-check-circle text-green-500 feedback-icon hidden"></i>
+            </div>
+            <p id="wifiFeedback" class="mt-4 text-sm font-semibold"></p>
+        </div>
+
+        <div id="completionMessage" class="text-lg font-bold text-gray-700 mb-6 hidden"></div>
+
+        <a href="index.html"
+            id="returnToMainButton"
+            class="inline-block bg-blue-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out transform hover:scale-105 hidden"
+            aria-label="Return to main menu"
+        >
+            <i class="fas fa-home mr-2"></i> Return to Main Menu
+        </a>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const urlExamples = [
+                    document.getElementById('urlExample1'),
+                    document.getElementById('urlExample2'),
+                    document.getElementById('urlExample3')
+                ];
+                const urlFeedback = document.getElementById('urlFeedback');
+
+                const wifiOptions = [
+                    document.getElementById('wifiOption1'),
+                    document.getElementById('wifiOption2'),
+                    document.getElementById('wifiOption3')
+                ];
+                const wifiFeedback = document.getElementById('wifiFeedback');
+                const completionMessage = document.getElementById('completionMessage');
+                const returnToMainButton = document.getElementById('returnToMainButton');
+
+                let urlCorrect = false;
+                let wifiCorrect = false;
+
+                function checkCompletion() {
+                    if (urlCorrect && wifiCorrect) {
+                        completionMessage.textContent = "Mission Accomplished for Level 3! You're a true Digital Guardian!";
+                        completionMessage.classList.remove('text-gray-700', 'hidden');
+                        completionMessage.classList.add('text-green-700');
+                        returnToMainButton.classList.remove('hidden');
+                    }
+                }
+
+                urlExamples.forEach(urlDiv => {
+                    urlDiv.addEventListener('click', () => {
+                        if (urlCorrect) return; // Prevent multiple clicks after correct selection
+
+                        const isCorrect = urlDiv.dataset.correct === 'true';
+                        urlExamples.forEach(div => div.style.pointerEvents = 'none'); // Disable all after first click
+
+                        if (isCorrect) {
+                            urlDiv.classList.add('secure');
+                            urlFeedback.textContent = "Correct! HTTPS and the padlock mean your connection is secure.";
+                            urlFeedback.classList.remove('text-red-500');
+                            urlFeedback.classList.add('text-green-700');
+                            urlCorrect = true;
+                        } else {
+                            urlDiv.classList.add('insecure');
+                            urlFeedback.textContent = "Incorrect. Remember to look for 'https://' and a padlock icon!";
+                            urlFeedback.classList.remove('text-green-700');
+                            urlFeedback.classList.add('text-red-500');
+                        }
+                        checkCompletion();
+                    });
+                });
+
+                wifiOptions.forEach(wifiDiv => {
+                    wifiDiv.addEventListener('click', () => {
+                        if (wifiCorrect) return; // Prevent multiple clicks after correct selection
+
+                        const isCorrect = wifiDiv.dataset.correct === 'true';
+                        wifiOptions.forEach(div => {
+                            div.style.pointerEvents = 'none'; // Disable all after first click
+                            div.querySelector('.feedback-icon').classList.remove('hidden');
+                        });
+
+                        if (isCorrect) {
+                            wifiDiv.classList.add('correct');
+                            wifiDiv.querySelector('.fa-check-circle').classList.remove('hidden');
+                            wifiFeedback.textContent = "Correct! Secured Wi-Fi (like WPA2) requires a password and encrypts your data.";
+                            wifiFeedback.classList.remove('text-red-500');
+                            wifiFeedback.classList.add('text-green-700');
+                            wifiCorrect = true;
+                        } else {
+                            wifiDiv.classList.add('incorrect');
+                            wifiDiv.querySelector('.fa-exclamation-triangle').classList.remove('hidden');
+                            wifiFeedback.textContent = "Incorrect. Avoid open networks for sensitive tasks. Always look for password protection!";
+                            wifiFeedback.classList.remove('text-green-700');
+                            wifiFeedback.classList.add('text-red-500');
+                        }
+                        checkCompletion();
+                    });
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

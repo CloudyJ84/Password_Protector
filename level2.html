@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 2: Phishing Defense</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .email-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        .email-header {
+            background-color: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .email-body {
+            background-color: #ffffff;
+        }
+        .suspicious-element {
+            cursor: pointer;
+            border-bottom: 2px dashed transparent; /* Dashed border for interactivity */
+            transition: border-color 0.2s ease-in-out;
+            padding-bottom: 2px;
+        }
+        .suspicious-element:hover {
+            border-color: #9ca3af; /* Light gray on hover */
+        }
+        .suspicious-element.correct {
+            background-color: #d1fae5; /* Light green for correct */
+            border-color: #10b981; /* Green border */
+        }
+        .suspicious-element.incorrect {
+            background-color: #fee2e2; /* Light red for incorrect */
+            border-color: #ef4444; /* Red border */
+        }
+        .tooltip {
+            visibility: hidden;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position above the element */
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            width: 120px;
+        }
+        .suspicious-element:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+    </style>
+</head>
+<body class="selection:bg-blue-200">
+    <div class="game-container">
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-4 flex items-center justify-center">
+            <i class="fas fa-envelope-open-text text-purple-500 mr-3"></i> Level 2: Phishing Defense
+        </h1>
+        <p class="text-gray-600 mb-8 leading-relaxed">
+            A cyber villain has sent you a tricky email! Your mission is to identify all the suspicious elements to avoid falling for the phishing scam. Click on what you think is suspicious!
+        </p>
+
+        <div class="email-container max-w-md mx-auto mb-8 text-left">
+            <div class="email-header p-4 flex items-center justify-between">
+                <div>
+                    <span class="font-semibold">From:</span>
+                    <span id="senderEmail" class="suspicious-element relative text-sm text-red-500 hover:text-red-700">support@amzon.com <span class="tooltip">Misspelling!</span></span>
+                </div>
+                <div class="text-sm text-gray-500">Today, 10:30 AM</div>
+            </div>
+            <div class="email-body p-6">
+                <p class="text-gray-800 font-bold text-lg mb-4">Urgent Account Review Needed!</p>
+                <p class="mb-4">Dear Valued Customer,</p>
+                <p class="mb-4">We noticed some unusual activity on your account. To prevent <span id="urgentTone" class="suspicious-element relative text-red-500 hover:text-red-700">unauthorized access, your account has been temporarily locked</span>. Please verify your details immediately to restore full access.</p>
+                <p class="mb-6">
+                    Click here to <span id="suspiciousLink" class="suspicious-element relative text-blue-600 hover:underline">log in and update your information</span>.
+                    <span class="tooltip">Hover to see the real link!</span>
+                    <a href="#" class="hidden" data-real-link="http://bad-hacker-site.com/login" target="_blank" rel="noopener noreferrer"></a>
+                </p>
+                <p class="text-sm text-gray-500">Thank you,<br>The Service Team</p>
+                <p id="grammar" class="suspicious-element relative text-red-500 text-sm mt-4 hover:text-red-700">P.S. We needs you to acts quick!</p>
+                <span class="tooltip">Bad grammar!</span>
+            </div>
+        </div>
+
+        <div id="feedbackMessage" class="text-lg font-bold text-gray-700 mb-6">Click on suspicious parts of the email!</div>
+
+        <div class="flex flex-col md:flex-row gap-4 justify-center">
+            <a href="results.html"
+                class="inline-block bg-blue-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-300 ease-in-out transform hover:scale-105"
+                aria-label="Return to previous challenges"
+            >
+                <i class="fas fa-arrow-left mr-2"></i> Back to Challenges
+            </a>
+            <a href="level3.html"
+                id="nextLevelButton"
+                class="inline-block bg-orange-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-orange-300 transition duration-300 ease-in-out transform hover:scale-105 hidden"
+                aria-label="Proceed to Level 3: Secure Browsing & Wi-Fi"
+            >
+                <i class="fas fa-play-circle mr-2"></i> Go to Level 3
+            </a>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const suspiciousElements = {
+                    senderEmail: document.getElementById('senderEmail'),
+                    urgentTone: document.getElementById('urgentTone'),
+                    suspiciousLink: document.getElementById('suspiciousLink'),
+                    grammar: document.getElementById('grammar')
+                };
+                const feedbackMessage = document.getElementById('feedbackMessage');
+                const nextLevelButton = document.getElementById('nextLevelButton');
+
+                let correctPicks = 0;
+                const totalCorrect = Object.keys(suspiciousElements).length;
+                let clickedElements = new Set(); // To track elements already clicked
+
+                // Store correct explanations for tooltips
+                const explanations = {
+                    senderEmail: "Misspelled domain 'amzon.com' instead of 'amazon.com'. Always check sender emails carefully!",
+                    urgentTone: "Phrases like 'urgent', 'locked account', or 'immediate action required' are common in phishing to create panic.",
+                    suspiciousLink: "Always hover over links to see the true destination URL. If it doesn't match the expected site, it's suspicious!",
+                    grammar: "Phishing emails often contain poor grammar, spelling errors, or awkward phrasing."
+                };
+
+                // Function to show/hide tooltip (for suspicious link element specifically)
+                function showTooltip(element, text) {
+                    let tooltip = element.querySelector('.tooltip');
+                    if (!tooltip) {
+                        tooltip = document.createElement('span');
+                        tooltip.className = 'tooltip';
+                        element.appendChild(tooltip);
+                    }
+                    tooltip.textContent = text;
+                    tooltip.style.visibility = 'visible';
+                    tooltip.style.opacity = '1';
+                }
+
+                function hideTooltip(element) {
+                    const tooltip = element.querySelector('.tooltip');
+                    if (tooltip) {
+                        tooltip.style.visibility = 'hidden';
+                        tooltip.style.opacity = '0';
+                    }
+                }
+
+
+                Object.keys(suspiciousElements).forEach(id => {
+                    const element = suspiciousElements[id];
+                    const originalText = element.innerHTML; // Store original for reset if needed
+
+                    // Add hover for suspicious link to show actual URL
+                    if (id === 'suspiciousLink') {
+                        const realLinkElem = element.querySelector('a');
+                        element.addEventListener('mouseenter', () => {
+                            if (!clickedElements.has(id)) { // Only show on hover if not already clicked
+                                showTooltip(element, `Actual link: ${realLinkElem.dataset.realLink}`);
+                            }
+                        });
+                        element.addEventListener('mouseleave', () => {
+                            if (!clickedElements.has(id)) {
+                                hideTooltip(element);
+                            }
+                        });
+                    }
+
+                    element.addEventListener('click', () => {
+                        if (clickedElements.has(id)) {
+                            return; // Already clicked, do nothing
+                        }
+
+                        element.classList.add('correct'); // Mark as correct
+                        element.style.cursor = 'default'; // Change cursor to indicate it's no longer clickable
+                        clickedElements.add(id);
+                        correctPicks++;
+
+                        // Display the full explanation directly instead of tooltip for clicked elements
+                        const explanationText = explanations[id];
+                        let explanationSpan = element.querySelector('.clicked-explanation');
+                        if (!explanationSpan) {
+                            explanationSpan = document.createElement('span');
+                            explanationSpan.className = 'block text-sm text-blue-700 font-semibold mt-1';
+                            element.appendChild(explanationSpan);
+                        }
+                        explanationSpan.textContent = ` (${explanationText})`;
+                        // Hide the hover tooltip once clicked
+                        hideTooltip(element);
+
+
+                        if (correctPicks === totalCorrect) {
+                            feedbackMessage.textContent = "Excellent work, Digital Guardian! You've identified all the phishing attempts!";
+                            feedbackMessage.classList.remove('text-gray-700');
+                            feedbackMessage.classList.add('text-green-700');
+                            nextLevelButton.classList.remove('hidden'); // Show next level button
+                        } else {
+                            feedbackMessage.textContent = `Great! You've found ${correctPicks} out of ${totalCorrect} suspicious elements. Keep looking!`;
+                        }
+                    });
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>
